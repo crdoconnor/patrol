@@ -15,7 +15,7 @@ To install::
     pip install patrol
 
 
-Create a watch class:
+To start watching, run patrol.watch(directory, list_of_triggers, lockfile=filename):
 
 .. code-block:: python
 
@@ -27,6 +27,7 @@ Create a watch class:
         print "3: Run test is run second."
         os.system("sleep 30 ; echo 4: ...this task might be stopped before this message appears.")
 
+    # If two triggers are fired by the same changed file, the first one in the list will always be run first.
     patrol.watch(os.getcwd(), [
         patrol.Trigger(
             build,
