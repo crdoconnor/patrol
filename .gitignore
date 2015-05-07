@@ -1,0 +1,11 @@
+setup.cfg
+.pypirc
+*.pyc
+build/
+patrol.egg-info/
+dist/
+venv/
+venv3/
+*.kate-swp
+key.py
+TODO.txt
