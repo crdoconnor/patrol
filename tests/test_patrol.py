@@ -8,7 +8,7 @@ import os
 
 class PatrolTestCase(unittest.TestCase):
     """Run a patrol script that mimics a running build and a test."""
-    TEST_DIR = os.path.dirname(os.getcwd() + os.sep + __file__)
+    TEST_DIR = os.path.dirname(os.getcwd() + os.sep + str(__file__))
 
     def setUp(self):
         # Change directory to the folder this file is in
@@ -40,7 +40,7 @@ class PatrolTestCase(unittest.TestCase):
         self.wait_for_file_to_exist("output/test_started", timeout=0.5)
         self.wait_for_file_to_exist("output/test_finished", timeout=2)
 
-        patrol_proc.terminate()
+        patrol_proc.kill()
 
     def test_reaper(self):
         patrol_proc = subprocess.Popen([sys.executable, "patrol1.py",])
@@ -58,7 +58,7 @@ class PatrolTestCase(unittest.TestCase):
         self.wait_for_file_to_exist("output/test_started", timeout=0.5)
         self.assertFalse(os.path.exists("output/test_finished"))
 
-        patrol_proc.terminate()
+        patrol_proc.kill()
 
 
 
