@@ -5,7 +5,7 @@ import time
 import os
 
 # Change directory to the directory this file is in
-chdir(path.join(path.abspath(path.dirname(__file__))))
+chdir(path.dirname(path.realpath(__file__)))
 
 def touch(filename):
     """Platform independent equivalent of UNIX touch cmd."""

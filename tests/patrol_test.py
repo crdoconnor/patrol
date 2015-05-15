@@ -11,7 +11,7 @@ class PatrolTestCase(unittest.TestCase):
 
     def setUp(self):
         # Change directory to the folder this file is in
-        os.chdir(os.path.join(os.path.abspath(os.path.dirname(__file__))))
+        os.chdir(os.path.dirname(os.path.realpath(__file__)))
         self.clean_output()
 
     def wait_for_file_to_exist(self, filename, timeout=2):
