@@ -1,9 +1,8 @@
-from setuptools import setup, find_packages
 from setuptools.command.install import install
-import os
-import sys
-import re
+from setuptools import setup, find_packages
 import codecs
+import sys
+import os
 
 
 def read(*parts):
@@ -31,10 +30,9 @@ setup(name="patrol",
       keywords='development environment tool pyuv epoll build',
       author='Colm O\'Connor',
       author_email='colm.oconnor.github@gmail.com',
-      packages=find_packages(exclude=["example.py", ]),
+      packages=find_packages(exclude=["tests/", ]),
       url='https://github.com/crdoconnor/patrol',
       license='MIT',
       install_requires=['pyuv', 'psutil', ],
       package_data={},
-      zip_safe=False,
-)
+      zip_safe=False,)
