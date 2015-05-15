@@ -1,9 +1,9 @@
 import subprocess
-import sys
-import time
 import unittest
-import os
 import shutil
+import time
+import sys
+import os
 
 
 class PatrolTestCase(unittest.TestCase):

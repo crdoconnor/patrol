@@ -1,12 +1,21 @@
-import multiprocessing
-from task import Task
+from __future__ import print_function
+from patrol.task import Task
 import fnmatch
+
 
 
 class Trigger(object):
     """Some conditions and a python method that yields a task."""
 
-    def __init__(self, method, includes, excludes=None, args=None, reaper=None, ignore_ctrlc=False, fire_on_initialization=False):
+    def __init__(self,
+                 method,
+                 includes,
+                 excludes=None,
+                 args=None,
+                 reaper=None,
+                 ignore_ctrlc=False,
+                 fire_on_initialization=False):
+
         self.method = method
         self.includes = includes
         self.args = [] if args is None else args
@@ -31,14 +40,18 @@ class Trigger(object):
         return currently_matching
 
     def hit_with(self, filenames):
+        """Return new task if filenames match trigger, else return None."""
         if self._match(filenames):
             return self.fire(filenames)
         else:
             return None
 
     def fire(self, filenames):
+        """Fire trigger and return task."""
         if filenames == []:
-            print "PATROL: Task '{}' triggered by changes to '{}'".format(self.method.func_name, ', '.join(filenames))
+            print("PATROL: Task '{}' triggered by changes to '{}'".format(
+                self.method.func_name, ', '.join(filenames)
+            ))
         else:
-            print "PATROL: Task '{}' triggered.".format(self.method.func_name)
+            print("PATROL: Task '{}' triggered.".format(self.method.func_name))
         return Task(self, filenames)

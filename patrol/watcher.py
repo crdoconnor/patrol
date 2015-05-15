@@ -1,8 +1,7 @@
+from __future__ import print_function
+import signal
 import pyuv
 import os
-import signal
-import sys
-import psutil
 
 
 def watch(triggers, directory=os.getcwd(), lockfiles=None):
@@ -13,19 +12,23 @@ class Watcher(object):
     """Watches the filesystem and fires triggers using libuv."""
 
     def __init__(self, triggers, directory, lockfiles):
+        """Initialize the watcher but do not run."""
         self.directory = directory
         self.triggers = triggers
         self.lockfiles = [] if lockfiles is None else lockfiles
         self.change_queue = []
         self.event_handles = []
         self.task_queue = []
-        self.signal_handle = None
+        self.signal_handler = None
+        self.timer_handler = None
         self.triggered = False
 
     def empty_task_queue(self):
+        """Is the task queue empty?"""
         return len(self.task_queue) == 0
 
     def first_task(self):
+        """Return first task in the queue, or nothing if empty."""
         if self.empty_task_queue():
             return None
         else:
@@ -37,7 +40,7 @@ class Watcher(object):
         if self.first_task() is None or not self.first_task().trigger.ignore_ctrlc:
             for task in self.task_queue:
                 task.stop()
-            self.signal_handle.close()
+            self.signal_handler.close()
             self.timer_handler.close()
             for event_handle in self.event_handles:
                 event_handle.close()
@@ -74,13 +77,13 @@ class Watcher(object):
                 del self.task_queue[0]
 
                 if len(self.task_queue) == 0:
-                    print "PATROL: ALL TASKS COMPLETE"
+                    print("PATROL: ALL TASKS COMPLETE")
 
 
 
     def run(self):
         """Run the watcher."""
-        print "PATROL: Started"
+        print("PATROL: Started")
         loop = pyuv.Loop.default_loop()
 
         # Attach a handler for each subdirectory underneath
@@ -90,8 +93,8 @@ class Watcher(object):
             self.event_handles.append(event_handle)
 
         # Attach a handler for CTRL-C
-        self.signal_handle = pyuv.Signal(loop)
-        self.signal_handle.start(lambda handle, signum: self.close_handles(), signal.SIGINT)
+        self.signal_handler = pyuv.Signal(loop)
+        self.signal_handler.start(lambda handle, signum: self.close_handles(), signal.SIGINT)
 
         # Attach a handler to start/stop/kill running tasks.
         self.timer_handler = pyuv.Timer(loop)
@@ -103,4 +106,4 @@ class Watcher(object):
                 self.task_queue.append(trigger.fire([]))
 
         loop.run()
-        print "PATROL: Stopped"
+        print("PATROL: Stopped")
