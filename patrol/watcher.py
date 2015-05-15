@@ -47,7 +47,7 @@ class Watcher(object):
 
     def read_callback(self, handle, filename, events, error):
         """Callback every time something is modified in the repository."""
-        fullpath = os.path.realpath(handle.path + os.sep + filename)
+        fullpath = os.path.realpath(str(handle.path) + os.sep + filename)
         relative_path = fullpath.replace(os.path.realpath(self.directory) + os.sep, "")
 
         if os.path.exists(fullpath):

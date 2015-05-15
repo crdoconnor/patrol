@@ -36,4 +36,4 @@ class Task(object):
     def stop(self):
         """Send the reaper after the task."""
         if self.process.is_alive():
-            self.trigger.reaper.reap(self.trigger.method.func_name, self.process)
+            self.trigger.reaper.reap(self.trigger.method.__name__, self.process)

@@ -50,8 +50,8 @@ class Trigger(object):
         """Fire trigger and return task."""
         if filenames == []:
             print("PATROL: Task '{}' triggered by changes to '{}'".format(
-                self.method.func_name, ', '.join(filenames)
+                self.method.__name__, ', '.join(filenames)
             ))
         else:
-            print("PATROL: Task '{}' triggered.".format(self.method.func_name))
+            print("PATROL: Task '{}' triggered.".format(self.method.__name__))
         return Task(self, filenames)
