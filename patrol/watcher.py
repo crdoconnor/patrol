@@ -5,6 +5,7 @@ import os
 
 
 def watch(triggers, directory=os.getcwd(), lockfiles=None):
+    """Initialize the watcher and run it."""
     Watcher(triggers, directory, lockfiles).run()
 
 
@@ -12,7 +13,6 @@ class Watcher(object):
     """Watches the filesystem and fires triggers using libuv."""
 
     def __init__(self, triggers, directory, lockfiles):
-        """Initialize the watcher but do not run."""
         self.directory = directory
         self.triggers = triggers
         self.lockfiles = [] if lockfiles is None else lockfiles

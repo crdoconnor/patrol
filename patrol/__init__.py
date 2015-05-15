@@ -1,3 +1,3 @@
-from trigger import Trigger
-from reaper import Reaper
-from watcher import watch
+from patrol.trigger import Trigger
+from patrol.reaper import Reaper
+from patrol.watcher import watch
