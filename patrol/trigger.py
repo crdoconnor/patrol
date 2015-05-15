@@ -1,17 +1,19 @@
-import fnmatch
 import multiprocessing
 from task import Task
+import fnmatch
+
 
 class Trigger(object):
     """Some conditions and a python method that yields a task."""
 
-    def __init__(self, method, includes, excludes=None, reset=None, timeout=10, ignore_ctrlc=False):
+    def __init__(self, method, includes, excludes=None, args=None, reaper=None, ignore_ctrlc=False, fire_on_initialization=False):
         self.method = method
         self.includes = includes
+        self.args = [] if args is None else args
         self.excludes = [] if excludes is None else excludes
-        self.reset = reset
-        self.timeout = int(timeout)
+        self.reaper = reaper
         self.ignore_ctrlc = ignore_ctrlc
+        self.fire_on_initialization = fire_on_initialization
 
     def _match(self, filenames):
         """Return True if trigger matches one of the specified filenames."""
@@ -28,9 +30,15 @@ class Trigger(object):
                         currently_matching = False
         return currently_matching
 
-    def fire(self, filenames):
+    def hit_with(self, filenames):
         if self._match(filenames):
-            print "PATROL: Task '{}' triggered by changes in '{}'".format(self.method.func_name, ', '.join(filenames))
-            return Task(self.method, self.ignore_ctrlc, self.reset, self.timeout)
+            return self.fire(filenames)
         else:
             return None
+
+    def fire(self, filenames):
+        if filenames == []:
+            print "PATROL: Task '{}' triggered by changes to '{}'".format(self.method.func_name, ', '.join(filenames))
+        else:
+            print "PATROL: Task '{}' triggered.".format(self.method.func_name)
+        return Task(self, filenames)

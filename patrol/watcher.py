@@ -5,17 +5,17 @@ import sys
 import psutil
 
 
-def watch(directory, triggers, lockfile=None):
-    Watcher(directory, triggers, lockfile).run()
+def watch(triggers, directory=os.getcwd(), lockfiles=None):
+    Watcher(triggers, directory, lockfiles).run()
 
 
 class Watcher(object):
     """Watches the filesystem and fires triggers using libuv."""
 
-    def __init__(self, directory, triggers, lockfile):
+    def __init__(self, triggers, directory, lockfiles):
         self.directory = directory
         self.triggers = triggers
-        self.lockfile = lockfile
+        self.lockfiles = [] if lockfiles is None else lockfiles
         self.change_queue = []
         self.event_handles = []
         self.task_queue = []
@@ -34,7 +34,7 @@ class Watcher(object):
     def close_handles(self):
         """Close all I/O handles prior to exit,
            provided a non-ctrlc ignored task is in progress."""
-        if self.first_task() is None or not self.first_task().ignore_ctrlc:
+        if self.first_task() is None or not self.first_task().trigger.ignore_ctrlc:
             for task in self.task_queue:
                 task.stop()
             self.signal_handle.close()
@@ -50,13 +50,16 @@ class Watcher(object):
         if os.path.exists(fullpath):
             self.change_queue.append(relative_path)
 
-        if not os.path.exists(self.directory + os.sep + self.lockfile):
-            for trigger in self.triggers:
-                task = trigger.fire(self.change_queue)
-                if task is not None and task not in self.task_queue[1:]:
-                    self.task_queue.append(task)
-                    self.triggered = True
-            self.change_queue = []
+        for lockfile in self.lockfiles:
+            if os.path.exists(self.directory + os.sep + lockfile):
+                return
+
+        for trigger in self.triggers:
+            task = trigger.hit_with(self.change_queue)
+            if task is not None and task not in self.task_queue[1:]:
+                self.task_queue.append(task)
+                self.triggered = True
+        self.change_queue = []
 
     def poll_callback(self, timer_handle):
         """Handle running tasks."""
@@ -93,6 +96,11 @@ class Watcher(object):
         # Attach a handler to start/stop/kill running tasks.
         self.timer_handler = pyuv.Timer(loop)
         self.timer_handler.start(self.poll_callback, 0.05, 0.05)
+
+        # Fire all "fire on initialization" triggers.
+        for trigger in self.triggers:
+            if trigger.fire_on_initialization:
+                self.task_queue.append(trigger.fire([]))
 
         loop.run()
         print "PATROL: Stopped"

@@ -12,7 +12,7 @@ def read(*parts):
     return codecs.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), *parts), 'r').read()
 
 setup(name="patrol",
-      version="0.2",
+      version="0.3",
       description="Trigger custom commands from filesystem events.",
       long_description=read('README.rst'),
       classifiers=[

@@ -9,3 +9,4 @@ venv3/
 *.kate-swp
 key.py
 TODO.txt
+tests/output

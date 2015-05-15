@@ -14,41 +14,48 @@ To install::
 
     pip install patrol
 
-
-To start watching, run patrol.watch(directory, list_of_triggers, lockfile=filename):
+Example code:
 
 .. code-block:: python
 
-    def build():
-        print "1: build will be run first."
-        os.system("sleep 2 ; echo 2: ...this task should always complete")
+    import patrol
 
-    def run_test():
-        print "3: Run test is run second."
-        os.system("sleep 30 ; echo 4: ...this task might be stopped before this message appears.")
+    def build(filenames):
+        touch("output/build_started")
+        time.sleep(2)
+        touch("output/build_finished")
 
-    # If two triggers are fired by the same changed file, the first one in the list will always be run first.
-    patrol.watch(os.getcwd(), [
-        patrol.Trigger(
-            build,
-            includes=["*.py", ],
-            excludes=['venv/*', ],
-        ),
-        patrol.Trigger(
-            run_test,
-            includes=["*.py", ],
-            excludes=['venv/*',],
-            reset=signal.SIGTERM,   # If triggered while method is in progress, it will stop it and start again.
-            timeout=1,              # How long to wait before SIGKILLing.
-        ),
-    ], lockfile="lock")
+    def run_test(filenames):
+        touch("output/test_started")
+        time.sleep(30)
+        touch("output/test_finished")
+
+    patrol.watch([
+            patrol.Trigger(
+                build,
+                includes=["data/*", ],
+                excludes=['data/exclude/*', 'output/*', ],
+            ),
+            patrol.Trigger(
+                run_test,
+                includes=["data/*", ],
+                excludes=['data/exclude/*', 'output/*', ],
+                reaper=patrol.Reaper(),         # If triggered while method is in progress, this will stop it and start it again.
+                fire_on_initialization=True,    # When the watch is initiated, this trigger will also fire.
+            ),
+        ],
+        directory=os.getcwd(),            # By default it patrols the present working directory.
+        lockfiles=[".git/index.lock", ],  # This will wait until git has finished its operations before firing any triggers
+    )
+
 
 
 Features
 ========
 
 * Patrol does not use polling to detect file changes. It uses libuv_, which creates event driven hooks to filesystem events using epoll, kqueue or IOCP.
-* You can queue up triggers by putting a file named 'lock' in the directory patrol.py is run from. Once 'lock' is removed, the pent up triggers will all be fired.
+* You can queue up triggers when a specified lockfile is present - e.g. you can use to prevent triggers from firing until git operations are done.
+* Patrol comes with a customized Reaper class that can be used to specify how a process is stopped.
 
 .. _ProjectKey: https://github.com/crdoconnor/projectkey
 
