@@ -1,11 +1,11 @@
-from os import path, chdir, getcwd, utime
+from os import path, chdir, getcwd, utime, sep
 import patrol
 import shutil
 import time
 import os
 
 # Change directory to the directory this file is in
-chdir(path.dirname(path.realpath(__file__)))
+chdir(path.dirname(getcwd() + sep + __file__))
 
 def touch(filename):
     """Platform independent equivalent of UNIX touch cmd."""

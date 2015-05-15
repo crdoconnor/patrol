@@ -8,10 +8,11 @@ import os
 
 class PatrolTestCase(unittest.TestCase):
     """Run a patrol script that mimics a running build and a test."""
+    TEST_DIR = os.path.dirname(os.getcwd() + os.sep + __file__)
 
     def setUp(self):
         # Change directory to the folder this file is in
-        os.chdir(os.path.dirname(os.path.realpath(__file__)))
+        os.chdir(self.TEST_DIR)
         self.clean_output()
 
     def wait_for_file_to_exist(self, filename, timeout=2):
