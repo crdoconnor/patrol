@@ -13,7 +13,7 @@ class Reaper(object):
 
     def reap(self, name, process):
         print("PATROL: Stopping task '{}'".format(name))
-        proc_list = psutil.Process(process.pid).get_children(recursive=True)
+        proc_list = psutil.Process(process.pid).children(recursive=True)
         for childproc in proc_list:
             try:
                 childproc.send_signal(self.signal)
@@ -34,7 +34,7 @@ class Reaper(object):
         if still_alive:
             for proc in proc_list:
                 if proc.is_running():
-                    full_name = ' '.join(proc.cmdline).strip()
+                    full_name = ' '.join(proc.cmdline()).strip()
                     print("PATROL: Killing process '{}'".format(full_name))
                     proc.kill()
         else:
